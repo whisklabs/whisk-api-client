@@ -1,0 +1,12 @@
+target/
+.project
+.settings/
+.target/
+.DS_Store
+.cache
+.classpath
+.history
+*.log
+*.pyc
+bin/
+whisk-adminsite/public/api/
