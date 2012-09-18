@@ -1,4 +1,4 @@
-scalaVersion in ThisBuild := "2.9.1"
+scalaVersion in ThisBuild := "2.9.2"
 
 
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"

@@ -1,8 +1,10 @@
-scalaVersion := "2.9.1"
+import AssemblyKeys._
+
+scalaVersion := "2.9.2"
 
 libraryDependencies += "org.rogach" %% "scallop" % "0.5.1"
 
-resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
+
 
 libraryDependencies ++= Seq(
 	"com.novocode" % "junit-interface" % "0.9-RC2" % "test->default",
@@ -11,9 +13,9 @@ libraryDependencies ++= Seq(
 	)
 
 
-//assemblySettings
+assemblySettings
 
 //assembleArtifact in packageBin := false
 
-//mainClass in assembly := Some("whisk.WhiskCli")
+mainClass in assembly := Some("whisk.WhiskCli")
 

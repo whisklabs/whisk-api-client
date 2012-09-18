@@ -5,43 +5,41 @@ import org.rogach.scallop.{Subcommand, ScallopConf}
 import protocol.recipes.RecipeQueryRequest
 
 
-object WhiskCli extends App {
+object WhiskCli{
 
-//  whisk recipes topchefs
-//  whisk recipes all -site channel4
-  var seq: Seq[String] = Seq("recipes", "--site", "itv", "all")
-  //var seq: Seq[String] = Seq("recipes", "topchefs")
+////  whisk recipes topchefs
+////  whisk recipes --site channel4 all
+//  var seq: Seq[String] = Seq("recipes", "--site", "itv", "all")
 
-    object Conf extends ScallopConf(seq) {
-        val recipes = new Subcommand("recipes") {
-            val site = opt[String]("site")
-            val list = trailArg[String](required = true)
-        }
-    }
 
-    var map: Map[String, Seq[String]] = Map(
-        ("list", Seq(Conf.recipes.list.get.getOrElse(""))),
-        ("start", Seq("0")),
-        ("count", Seq("1"))
-    )
-    val option = Conf.recipes.site.get
-        option match {
-            case Some(x) =>  {
-                map +=  (("site", Seq(x)))
+    def main(args: Array[String]) = {
+        try{
+            object Conf extends ScallopConf(args.toSeq) {
+                val recipes = new Subcommand("recipes") {
+                    val site = opt[String]("site")
+                    val list = trailArg[String](required = true)
+                }
             }
-            case _ => {}
-      }
 
+            val list: String = Conf.recipes.list()
+            var map: Map[String, Seq[String]] = Map(
+                ("list",  Seq(list)),
+                ("start", Seq("0")),
+                ("count", Seq("10"))
+            )
 
-    try{
-        val r  = new ApiProxy(HttpClient).recipesQuery(RecipeQueryRequest(sessionId = "", params= map))
-        r.get.data.get.recipes
-            .map(RecipeFormatter.formatItem)
-            .foreach(x => Console.println(x))
+            if(Conf.recipes.site.isSupplied)
+                map +=  (("site", Seq(Conf.recipes.site())))
 
-    } catch {
-        case e: Exception => {
-            Console.println(e.toString())
+            val r  = new ApiProxy(HttpClient).recipesQuery(RecipeQueryRequest(sessionId = "", params= map))
+            r.get.data.get.recipes
+                .map(RecipeFormatter.formatItem)
+                .foreach(x => Console.println(x))
+
+        } catch {
+            case e: Exception => {
+                e.printStackTrace()
+            }
         }
     }
 }

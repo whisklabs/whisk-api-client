@@ -40,7 +40,6 @@ object HttpClient  extends HttpHandler
             val response = httpClient.execute(request)
             if (response.getStatusLine.getStatusCode == 200) {
                 val result: String = EntityUtils.toString(response.getEntity, "UTF-8")
-                println(result)
                 return new String(result)
             }
             throw new IOException(response.toString)

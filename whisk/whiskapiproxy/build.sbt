@@ -1,8 +1,8 @@
-scalaVersion := "2.9.1"
+scalaVersion := "2.9.2"
 
 libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.2.1"
 
-libraryDependencies += "net.liftweb" %% "lift-json" % "2.4"
+libraryDependencies += "net.liftweb" %% "lift-json" % "2.5-M1"
 
 resolvers += "sonatype-snapshots" at "https://oss.sonatype.org/content/repositories/snapshots"
 

@@ -8,7 +8,7 @@ import protocol.recipes.{RecipeQueryResponse, RecipeQueryRequest}
 
 class ApiProxyTest extends ScalaDsl with EN {
     var query: Option[RecipeQueryResponse] = None
-    val proxy  = new ApiProxy(FakeHttpHandler)
+    val proxy  = new ApiProxy(HttpClient)
     When("""^Run with recipes -site "([^"]*)" all$""") { (arg:String)  =>
         var map: Map[String, Seq[String]] = Map(
             ("list", Seq("all")),
