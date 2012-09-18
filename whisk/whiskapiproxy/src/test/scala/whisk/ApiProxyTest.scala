@@ -1,48 +1,29 @@
 package whisk
 
-import apiproxy.{HttpHandler, ApiProxy}
+import apiproxy.{HttpClient, HttpHandler, ApiProxy}
 import cucumber.runtime.{ScalaDsl, EN}
 import junit.framework.Assert._
 import protocol.recipes.{RecipeQueryResponse, RecipeQueryRequest}
 
 
 class ApiProxyTest extends ScalaDsl with EN {
-
-//    @When("^Run with recipes -site \"([^\"]*)\" all$")
-//    public void Run_with_recipes_site_all(String arg1) throws Throwable {
-//        // Express the Regexp above with the code you wish you had
-//        throw new PendingException();
-//    }
-//
-//    When("""^Run with recipes -site "([^"]*)" all$"""){ (arg0:String) =>
-//    //// Express the Regexp above with the code you wish you had
-//        throw new PendingException()
-//    }
-//    @Then("^it should return the following site: \"([^\"]*)\"$")
-//    public void it_should_return_the_following_site(String arg1) throws Throwable {
-//        // Express the Regexp above with the code you wish you had
-//        throw new PendingException();
-//    }
-//
-//    Then("""^it should return the following site: "([^"]*)"$"""){ (arg0:String) =>
-//    //// Express the Regexp above with the code you wish you had
-//        throw new PendingException()
-//    }
-
     var query: Option[RecipeQueryResponse] = None
     val proxy  = new ApiProxy(FakeHttpHandler)
-    When("""Run with recipes -site (\s+) all""") { (arg:String)  =>
+    When("""^Run with recipes -site "([^"]*)" all$""") { (arg:String)  =>
         var map: Map[String, Seq[String]] = Map(
             ("list", Seq("all")),
             ("site", Seq(arg)))
 
       query = proxy.recipesQuery(RecipeQueryRequest(sessionId = "", params = map))
-
     }
-    Then ("""^it should return the following site : (\s+)$"""){ (site:String) =>
+
+
+    Then ("""^it should return the following site: "([^"]*)"$"""){ (site:String) =>
         query match {
-            case r:RecipeQueryResponse => r.data.get.recipes.forall(c=> c.site.equals(site))
-            case _ => assert(false)
+            case Some(r: RecipeQueryResponse) => {
+                assert(r.data.get.recipes.forall(c=> c.site.name.equals(site)), "not itv found")
+            }
+            case None => assert(false, "failed getting response")
         }
     }
 }

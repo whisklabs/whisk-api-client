@@ -33,7 +33,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/cucumber-core-1.0.14.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/cucumber-core-1.0.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -42,7 +42,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/cucumber-java-1.0.14.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/cucumber-junit-1.0.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -51,7 +51,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/cucumber-junit-1.0.14.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/cucumber-scala-1.0.9.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -60,7 +60,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/cucumber-scala-1.0.9.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/gherkin-2.11.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -69,16 +69,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/jchronic-0.2.6.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../whiskapiproxy/lib/junit-4.10.jar!/" />
+          <root url="jar://$MODULE_DIR$/../lib/junit-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
