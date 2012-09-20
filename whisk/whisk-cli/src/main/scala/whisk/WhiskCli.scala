@@ -24,28 +24,25 @@ object WhiskCli {
         {
             case e: OptionParseException =>
                 {
+                    e.printStackTrace()
                     println(e.getMessage)
                     println(
                         """usages
     : whisk-cli.jar recipes [--search chocolate] [--site bbc] all
     : whisk-cli.jar addtofavourites full_url
-    : whisk-cli.jar shoppinglistoptions full_url
-    : whisk-cli.jar addtoshoppinglist full_url""")
+    : whisk-cli.jar shoppinglistoptions [--store store] full_url
+    : whisk-cli.jar addtoshoppinglist [--shoppingListName test] waitrose full_url """)
                 }
             case e:Exception=> e.printStackTrace()
         }
     }
 
     def process(args: Array[String]) ={
-
         object Conf extends ScallopConf(args) {
             val recipes = new Subcommand("recipes") {
                 val searchText = opt[String]("search")
                 val site = opt[String]("site")
-
-                val favourites = trailArg[String]( name = "favourites", required = false)
                 val list = trailArg[String](required = true)
-                mutuallyExclusive(favourites, searchText)
             }
 
             val addtofavourites = new Subcommand("addtofavourites") {
@@ -53,10 +50,13 @@ object WhiskCli {
             }
 
             val shoppinglistoptions = new Subcommand("shoppinglistoptions") {
+                val store = opt[String]("store")
                 val url = trailArg[String](required = true)
             }
 
             val addtoshoppinglist = new Subcommand("addtoshoppinglist") {
+                val shoppingListName = opt[String]("shoppingListName")
+                val store = trailArg[String](required = true)
                 val url = trailArg[String](required = true)
             }
 
@@ -76,11 +76,6 @@ object WhiskCli {
                     ("start", Seq("0")),
                     ("count", Seq("10"))
                 )
-
-                if(Conf.recipes.favourites.isSupplied)
-                {
-                    throw new NotImplementedException
-                }
 
 
                 if(Conf.recipes.site.isSupplied)
@@ -107,13 +102,16 @@ object WhiskCli {
 
             case Some(Conf.shoppinglistoptions) =>{
                 val  r = new ApiProxy(HttpClient)
-                     .shoppingListOptionsQuery(ShoppingListOptionsRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), None))
+                     .shoppingListOptionsQuery(
+                    ShoppingListOptionsRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), store = Conf.shoppinglistoptions.store.get))
                 ShoppingListOptions.formatItem(out, r.get)
             }
 
             case Some(Conf.addtoshoppinglist) =>{
+                val store: Option[String] = Conf.addtoshoppinglist.store.get
+                val url: String = Conf.addtoshoppinglist.url.get.get
                 val  r = new ApiProxy(HttpClient)
-                    .addToShoppingListQuery(AddToShoppingListRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), None))
+                    .addToShoppingListQuery(AddToShoppingListRequest(sessionId, url, Some(1), store, shoppingListName = Conf.addtoshoppinglist.shoppingListName.get))
                 AddToShoppingListFormatter.formatItem(out, r.get)
             }
 

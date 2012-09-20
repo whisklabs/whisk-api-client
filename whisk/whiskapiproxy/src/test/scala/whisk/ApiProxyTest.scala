@@ -5,13 +5,14 @@ import cucumber.runtime.{ScalaDsl, EN}
 import junit.framework.Assert._
 import protocol.recipes.{RecipeQueryResponse, RecipeQueryRequest}
 import sun.reflect.generics.reflectiveObjects.NotImplementedException
+import org.junit.Test
 
 
 class ApiProxyTest extends ScalaDsl with EN {
     var query: Option[RecipeQueryResponse] = None
     val proxy  = new ApiProxy(HttpClient)
     When("""^Run with recipes -site "([^"]*)" all$""") { (arg:String)  =>
-        var map: Map[String, Seq[String]] = Map(
+        val map: Map[String, Seq[String]] = Map(
             ("list", Seq("all")),
             ("site", Seq(arg)))
 
@@ -22,7 +23,7 @@ class ApiProxyTest extends ScalaDsl with EN {
     Then ("""^it should return the following site: "([^"]*)"$"""){ (site:String) =>
         query match {
             case Some(r: RecipeQueryResponse) => {
-                assert(r.data.get.recipes.forall(c=> c.site.name.equals(site)), "not itv found")
+                assert(r.data.get.recipes.forall(c=> c.site.name.equals(site)))
             }
             case None => assert(false, "failed getting response")
         }
@@ -36,6 +37,10 @@ object FakeHttpHandler extends HttpHandler{
     }
 
     def handlePost(url: String, postContent: String):String = {
+        throw new NotImplementedException()
+    }
+
+    def handlePost(url: String, params: Map[String, String]) = {
         throw new NotImplementedException()
     }
 }

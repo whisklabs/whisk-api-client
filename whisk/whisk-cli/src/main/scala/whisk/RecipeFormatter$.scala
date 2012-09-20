@@ -1,7 +1,7 @@
 package whisk
 
 import protocol.identity.LoginResponse
-import protocol.shoppinglist.{ShoppingList, AddToShoppingListResponse, ShoppingListOptionsResponse}
+import protocol.shoppinglist.{ShoppingListTitle, ShoppingList, AddToShoppingListResponse, ShoppingListOptionsResponse}
 import protocol.recipes.{RecipeQueryResponse, RecipeResponse, RecipeAuthor, Recipe}
 import scala.Some
 import java.io.PrintStream
@@ -16,7 +16,8 @@ object LoginFormatter extends Formatter[LoginResponse]
 object ShoppingListOptions extends Formatter[ShoppingListOptionsResponse]
 {
     def formatItem(out: PrintStream, data: ShoppingListOptionsResponse) = {
-        ""
+        val list: Seq[ShoppingListTitle] = data.shoppingLists
+        list.foreach(x => out.println("%20s %20s".format(x.name.getOrElse(""), x.store)))
     }
 }
 
@@ -24,7 +25,7 @@ object AddToShoppingListFormatter extends Formatter[AddToShoppingListResponse]
 {
     def formatItem(out: PrintStream,data: AddToShoppingListResponse) = {
         val list: ShoppingList = data.shoppingList
-        out.println("%20s%10s%15".format(list.name.getOrElse(""), list.store.name, list.totalPrice))
+        list.recipes.foreach(x => out.println("%20s %20s %20s".format(x.name, x.servings, x.url)))
     }
 }
 

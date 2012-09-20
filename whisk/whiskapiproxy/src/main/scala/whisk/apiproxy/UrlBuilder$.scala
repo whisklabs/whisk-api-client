@@ -1,6 +1,7 @@
 package whisk.apiproxy
 
 import whisk.protocol.recipes.RecipeQueryRequest
+import whisk.protocol.shoppinglist.ShoppingListOptionsRequest
 
 object UrlBuilder {
     def getAddRecipeToShortlistUrl(): String ={
@@ -27,6 +28,21 @@ object UrlBuilder {
 
         val getArgs = parameters.reduceLeft({ (acc, s) => acc + "&" + s })
         return buildGetUrl("recipes/query", getArgs)
+    }
+
+
+    def getShoppingListOptionsUrl(r: ShoppingListOptionsRequest): String = {
+        val parameters  = (
+            Map(("sessionId", r.sessionId),
+                ("store", r.store.get),
+                ("recipeUrl", r.recipeUrl)
+            ))
+            .map({
+            case (k, v) => "%s=%s".format(k, v)
+        })
+
+        val getArgs = parameters.reduceLeft({ (acc, s) => acc + "&" + s })
+        return buildGetUrl("shoppingList/options", getArgs)
     }
 
 
