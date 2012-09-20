@@ -1,5 +1,7 @@
 package whisk
 
+import java.io.{PrintStream}
+
 trait Formatter[T] {
-  def formatItem(data: T): String
+  def formatItem(out: PrintStream, data: T)
 }
