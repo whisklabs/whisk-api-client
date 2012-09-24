@@ -5,7 +5,7 @@ import Keys._
 
 object HelloBuild extends Build {
 
-    lazy val majorVersion = "0.2"
+    lazy val majorVersion = "0.1"
     lazy val whiskCliSettings   =    Defaults.defaultSettings ++ Seq(
         organization := "whisk",
         version := "%s.0-SNAPSHOT" format majorVersion,
