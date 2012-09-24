@@ -7,6 +7,20 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.client.methods.{HttpPost, HttpGet}
 import org.apache.http.util.EntityUtils
 import java.io.{File, IOException}
+import whisk.protocol.shoppinglist._
+import whisk.protocol.recipes.RecipeQueryRequest
+import whisk.protocol.identity.LoginRequest
+import whisk.protocol.identity.LoginResponse
+import whisk.protocol.identity.CreateSessionResponse
+import whisk.protocol.identity.AddRecipeToShortlistRequest
+import whisk.protocol.identity.CreateSessionRequest
+import scala.Some
+import whisk.protocol.recipes.RecipeQueryResponse
+import org.apache.http.client.entity.UrlEncodedFormEntity
+import org.apache.http.message.BasicNameValuePair
+import org.apache.http.entity.{ContentType, StringEntity}
+import scala.collection.JavaConverters._
+import whisk.protocol.recipes.RecipeResponse
 import whisk.protocol.shoppinglist.AddToShoppingListRequest
 import whisk.protocol.recipes.RecipeQueryRequest
 import whisk.protocol.shoppinglist.ShoppingListOptionsRequest
@@ -19,12 +33,12 @@ import whisk.protocol.identity.CreateSessionRequest
 import scala.Some
 import whisk.protocol.recipes.RecipeQueryResponse
 import whisk.protocol.shoppinglist.AddToShoppingListResponse
-import org.apache.http.client.entity.UrlEncodedFormEntity
-import org.apache.http.message.BasicNameValuePair
-import org.apache.http.entity.{ContentType, StringEntity}
-import scala.collection.JavaConverters._;
+import whisk.protocol.common.BasicWhiskResponse
+;
 
 class ApiProxy(httpHandler: HttpHandler) {
+
+
 
     private implicit val formats = DefaultFormats + new CustomShoppingListStoreItemSerializer
 
@@ -62,7 +76,34 @@ class ApiProxy(httpHandler: HttpHandler) {
         val response: String = httpHandler.handleGet(url)
         parseOpt(response) match {
             case Some(jv) => {
-                Some(jv.extract[ShoppingListOptionsResponse])
+                jv.extractOpt[ShoppingListOptionsResponse] match {
+                    case Some(m) => Some(m)
+                    case None => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
+                }
+            }
+            case _ => None
+        }
+    }
+
+    def shoppingListOptionsPost(r: ShoppingListOptionsRequest) :Option[ShoppingListOptionsResponse] ={
+        val url: String = UrlBuilder.getShoppingListOptionsUrl()
+        val jsonContent = pretty(render(decompose(r)))
+        val response :String  = httpHandler.handlePost(url, jsonContent)
+        parseOpt(response) match {
+            case Some(jv) => {
+                jv.extractOpt[ShoppingListOptionsResponse]
+            }
+            case _ => None
+        }
+    }
+
+    def shoppingListQuery(r: GetShoppingListRequest) : Option[GetShoppingListResponse] ={
+        val url: String = UrlBuilder.getShoppingListRequestUrl(r)
+        val response: String = httpHandler.handleGet(url)
+
+        parseOpt(response) match {
+            case Some(jv) => {
+                jv.extractOpt[GetShoppingListResponse]
             }
             case _ => None
         }

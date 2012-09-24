@@ -1,9 +1,22 @@
 package whisk.apiproxy
 
 import whisk.protocol.recipes.RecipeQueryRequest
-import whisk.protocol.shoppinglist.ShoppingListOptionsRequest
+import whisk.protocol.shoppinglist.{GetShoppingListRequest, ShoppingListOptionsRequest}
+import org.apache.http.message.BasicNameValuePair
+import org.apache.http.client.utils.URLEncodedUtils
+import scala.collection.JavaConverters._;
 
 object UrlBuilder {
+    def getShoppingListRequestUrl(r: GetShoppingListRequest): String ={
+        var m = Map(("sessionId", r.sessionId))
+
+        if(r.shoppingListName.isDefined)
+            m += (("shoppingListName", r.shoppingListName.get))
+
+        val parameters  = m.map({  case (k, v) =>  new BasicNameValuePair(k, v) }).toSeq
+        return buildGetUrl("shoppingList/show", URLEncodedUtils.format(parameters.asJava, "utf-8"))
+    }
+
     def getAddRecipeToShortlistUrl(): String ={
         buildUrl("shortlist/recipes/add")
     }
@@ -18,34 +31,29 @@ object UrlBuilder {
 
 
     def getRecipesQueryUrl(r: RecipeQueryRequest): String = {
-        val parameters  = (
+        val parameters = (
                 Map(("sessionId", r.sessionId)) ++
                 r.params.map { case (k, s) => (k, s.head) }
             )
             .map({
-                case (k, v) => "%s=%s".format(k, v)
-            })
+                case (k, v) => new BasicNameValuePair(k, v)
+            }).toSeq
 
-        val getArgs = parameters.reduceLeft({ (acc, s) => acc + "&" + s })
-        return buildGetUrl("recipes/query", getArgs)
+        return buildGetUrl("recipes/query", URLEncodedUtils.format(parameters.asJava, "utf-8"))
     }
 
 
     def getShoppingListOptionsUrl(r: ShoppingListOptionsRequest): String = {
-        val parameters  = (
-            Map(("sessionId", r.sessionId),
-                ("store", r.store.get),
-                ("recipeUrl", r.recipeUrl)
-            ))
-            .map({
-            case (k, v) => "%s=%s".format(k, v)
-        })
+        var m = Map(("sessionId", r.sessionId),
+            ("recipeUrl", r.recipeUrl))
 
-        val getArgs = parameters.reduceLeft({ (acc, s) => acc + "&" + s })
-        return buildGetUrl("shoppingList/options", getArgs)
+        if(r.store.isDefined)
+            m += (("store", r.store.get))
+
+        val parameters  = m.map({  case (k, v) =>  new BasicNameValuePair(k, v) }).toSeq
+
+        return buildGetUrl("shoppingList/options",  URLEncodedUtils.format(parameters.asJava, "utf-8"))
     }
-
-
 
 
     def getLoginUrl() : String ={
