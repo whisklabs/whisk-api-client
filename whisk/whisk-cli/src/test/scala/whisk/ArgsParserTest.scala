@@ -9,7 +9,7 @@ import scala.Some
 
 
 
-@Ignore
+
 class ArgsParserTest extends  FunSuite {
     test("whisk recipes --site channel4 all") {
 
@@ -246,7 +246,6 @@ class ArgsParserTest extends  FunSuite {
         assert(Conf.login.pass().equals("pass"))
     }
 }
-
 
 
 
