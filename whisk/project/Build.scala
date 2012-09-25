@@ -1,3 +1,4 @@
+import org.apache.ivy.util.FileUtil
 import sbt._
 import Keys._
 import sbtassembly.Plugin.AssemblyKeys._
@@ -15,11 +16,10 @@ object HelloBuild extends Build {
         javacOptions ++= Seq("-target", "1.6", "-source", "1.6"),
         manifestSetting) ++ Seq(
                 test in assembly := {},
-
                 jarName in assembly := "whisk-cli-%s.0.jar" format majorVersion,
                 mainClass in assembly := Some("whisk.WhiskCli"))
 
-	lazy val whisk = Project(id = "whisk", base = file("."), settings = Defaults.defaultSettings  ++ Seq(helloTask))  aggregate(whiskcli, whiskapiproxy)
+	lazy val whisk = Project(id = "whisk", base = file("."))  aggregate(whiskcli, whiskapiproxy)
     lazy val whiskapiproxy  = Project(id = "whisk-apiproxy", base = file("whisk-apiproxy"))
 	lazy val whiskcli  = Project(id = "whisk-cli", base = file("whisk-cli"), settings = whiskCliSettings) dependsOn(whiskapiproxy)
 
@@ -39,14 +39,6 @@ object HelloBuild extends Build {
                 "Implementation-Vendor" -> vendor
             )
     }
-
-
-    val hello = TaskKey[Unit]("hello", "Prints 'Hello World'")
-    val helloTask = hello := {
-        println("Hello World")
-    }
-
-    assembly <<= assembly.dependsOn(hello)
 }
 
 
