@@ -9,32 +9,35 @@ import protocol.identity.LoginRequest
 import protocol.recipes.{RecipeQueryResponse, RecipeQueryRequest}
 import protocol.shoppinglist.{AddToShoppingListRequest, ShoppingListOptionsRequest}
 import scala.Some
-import sun.reflect.generics.reflectiveObjects.NotImplementedException
-import net.liftweb.json.DefaultFormats
-import org.rogach.scallop.exceptions.OptionParseException
+import org.rogach.scallop.exceptions.ScallopException
 
 
 object WhiskCli {
     private val out = Console.out
 
     def main(args: Array[String]) :Unit = {
+        if(args.length == 0)
+            showHelp
+
         try{
             process(args)
         }catch
         {
-            case e: OptionParseException =>
+            case e: ScallopException=>
                 {
-                    e.printStackTrace()
                     println(e.getMessage)
-                    println(
-                        """usages
+                    showHelp
+                }
+            case e:Exception=> e.printStackTrace()
+        }
+    }
+    def showHelp {
+        println(
+            """usages
     : whisk-cli.jar recipes [--search chocolate] [--site bbc] all
     : whisk-cli.jar addtofavourites full_url
     : whisk-cli.jar shoppinglistoptions [--store store] full_url
     : whisk-cli.jar addtoshoppinglist [--shoppingListName test] waitrose full_url """)
-                }
-            case e:Exception=> e.printStackTrace()
-        }
     }
 
     def process(args: Array[String]) ={

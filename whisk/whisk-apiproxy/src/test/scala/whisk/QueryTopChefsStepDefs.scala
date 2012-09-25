@@ -7,7 +7,7 @@ import protocol.recipes.{Recipe, RecipeQueryRequest}
 import scala.Some
 import org.junit.Assert._
 
-class QueryStepDefs extends ScalaDsl with EN {
+class QueryTopChefsStepDefs extends ScalaDsl with EN {
 
     val proxy = new ApiProxy(HttpClient)
 
@@ -33,13 +33,29 @@ class QueryStepDefs extends ScalaDsl with EN {
         assertTrue("expected %s given %s\n".format(expected.toSeq, given.toSeq),
             given.forall(chef => expected.exists(c => c.equalsIgnoreCase(chef))))
     }
+}
 
-    When("""^I ask it to search for the text "([^"]*)"$"""){ (arg0:String) =>
-        params += (("searchText", Seq(arg0)))
+
+class QuerySearchForRecipeStepDefs extends ScalaDsl with EN {
+
+    val proxy = new ApiProxy(HttpClient)
+
+    var sessionId:Option[String] = None
+
+    var params :Map[String,Seq[String]] =  Map.empty
+
+
+    When("""^I create a new   session$""") {
+        sessionId = Some(proxy.createSession(CreateSessionRequest()).get.header.sessionId)
     }
+
 
     And("""the site "([^"]*)"$""")  { (url:String) =>
         params += (("site", Seq(url)))
+    }
+
+    And("""^I ask it to search for the text "([^"]*)"$"""){ (arg0:String) =>
+        params += (("searchText", Seq(arg0)))
     }
 
     Then("""^it should return the recipe with Url "([^"]*)"$"""){ (url:String) =>
@@ -50,7 +66,13 @@ class QueryStepDefs extends ScalaDsl with EN {
             result.get.data.get.recipes.forall( r=> r.url.equalsIgnoreCase(url)) )
 
     }
-
-
-
 }
+
+
+
+
+
+
+
+
+

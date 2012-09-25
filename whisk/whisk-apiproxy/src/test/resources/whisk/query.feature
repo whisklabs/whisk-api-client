@@ -9,7 +9,7 @@ Feature: Query
       """
 
   Scenario: Search for recipe
-    When I create a new session
+    When I create a new   session
     And I ask it to search for the text "salmon lentils"
     And the site "itv"
   # The search should be /recipes/query?searchText=salmon+lentils&site=itv

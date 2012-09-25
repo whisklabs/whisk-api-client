@@ -157,8 +157,8 @@ trait HttpHandler
 
 object HttpClient extends HttpHandler
 {
-    var logger = ( x:String ) => {  }
-    //var logger = ( x:String ) => {  println(x) }
+    //var logger = ( x:String ) => {  }
+    var logger = ( x:String ) => {  println(x) }
 
     def handleGet(url :String): String = {
         val httpClient = new DefaultHttpClient()

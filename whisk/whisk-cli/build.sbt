@@ -16,13 +16,8 @@ libraryDependencies ++= Seq(
 	"info.cukes" % "cucumber-scala" % "1.0.9" % "test"
 	)
 
-
-
-
 assemblySettings
 
-//assembleArtifact in packageBin := false
 
-mainClass in assembly := Some("whisk.WhiskCli")
 
 
