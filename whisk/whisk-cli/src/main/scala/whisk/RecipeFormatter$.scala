@@ -17,7 +17,7 @@ object ShoppingListOptions extends Formatter[ShoppingListOptionsResponse]
 {
     def formatItem(out: PrintStream, data: ShoppingListOptionsResponse) = {
         val list: Seq[ShoppingListTitle] = data.shoppingLists
-        list.foreach(x => out.println("%20s %20s".format(x.name.getOrElse(""), x.store)))
+        list.foreach(x => out.println("%-20s %-20s\n".format(x.name.getOrElse(""), x.store)))
     }
 }
 
@@ -25,7 +25,7 @@ object AddToShoppingListFormatter extends Formatter[AddToShoppingListResponse]
 {
     def formatItem(out: PrintStream,data: AddToShoppingListResponse) = {
         val list: ShoppingList = data.shoppingList
-        list.recipes.foreach(x => out.println("%20s %20s %20s".format(x.name, x.servings, x.url)))
+        list.recipes.foreach(x => out.println("%-20s %-20s %-20s\n".format(x.name, x.servings, x.url)))
     }
 }
 
@@ -53,7 +53,7 @@ object RecipeQueryResponseFormatter extends Formatter[Option[RecipeQueryResponse
 
 object RecipeFormatter extends Formatter[Recipe] {
   def formatItem(out: PrintStream, d: Recipe) = {
-    out.format("%20s%10s%15s%15s%30s%30s",
+    out.printf("%-20s %-10s %-15s %-15s %-30s %-30s\n",
       d.title.take(20),
       d.ingredients.length.toString,
       d.author.getOrElse(RecipeAuthor("")).name.take(15),
