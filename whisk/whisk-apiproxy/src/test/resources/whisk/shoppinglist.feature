@@ -6,3 +6,9 @@ Feature: Shopping list
     And I change the option for "1 kg sausages" to "Butchers Choice 8 Half Fat Pork Sausages 454G"
     And I add the recipe to a shopping list at "Tesco"
     Then shopping list should include "Butchers Choice 8 Half Fat Pork Sausages 454G"
+
+
+  Scenario: Get shopping list options, Waitrose & Tesco returned
+    When I create a new    session
+    And I ask it to get the shopping list options for   "http://www.jamieoliver.com/recipes/meat-recipes/the-best-sausages-with-braised-lentils-a"
+    Then the supermarkets "Waitrose" and "Tesco" should be returned

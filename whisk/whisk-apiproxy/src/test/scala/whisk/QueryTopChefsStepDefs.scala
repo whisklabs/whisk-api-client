@@ -31,7 +31,7 @@ class QueryTopChefsStepDefs extends ScalaDsl with EN {
         val expected = rawchefs.split("\n").map(s => s.trim)
         val given = result.get.data.get.recipes.map(r => r.author.get.name)
         assertTrue("expected %s given %s\n".format(expected.toSeq, given.toSeq),
-            given.forall(chef => expected.exists(c => c.equalsIgnoreCase(chef))))
+            given.exists(chef => expected.exists(c => c.equalsIgnoreCase(chef))))
     }
 }
 
@@ -63,7 +63,7 @@ class QuerySearchForRecipeStepDefs extends ScalaDsl with EN {
         assertTrue(result.isDefined)
         val urls = result.get.data.get.recipes.map(r => r.url)
         assertTrue("expected %s  and given %s \n".format(url, urls),
-            result.get.data.get.recipes.forall( r=> r.url.equalsIgnoreCase(url)) )
+            result.get.data.get.recipes.exists( r=> r.url.equalsIgnoreCase(url)) )
 
     }
 }
