@@ -1,12 +1,19 @@
 package whisk.apiproxy
 
-import whisk.protocol.recipes.RecipeQueryRequest
+import whisk.protocol.recipes.{RecipeCheckRequest, RecipeQueryRequest}
 import whisk.protocol.shoppinglist.{GetShoppingListRequest, ShoppingListOptionsRequest}
 import org.apache.http.message.BasicNameValuePair
 import org.apache.http.client.utils.URLEncodedUtils
 import scala.collection.JavaConverters._;
 
 object UrlBuilder {
+
+    def getRecipeCheckUrl(r: RecipeCheckRequest): String ={
+        val m = Map(("sessionId", r.sessionId), ("recipeUrl", r.recipeUrl))
+        val parameters  = m.map({  case (k, v) =>  new BasicNameValuePair(k, v) }).toSeq
+        return buildGetUrl("recipes/check", URLEncodedUtils.format(parameters.asJava, "utf-8"))
+    }
+
     def getShoppingListRequestUrl(r: GetShoppingListRequest): String ={
         var m = Map(("sessionId", r.sessionId))
 
