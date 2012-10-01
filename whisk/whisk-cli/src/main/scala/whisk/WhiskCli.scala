@@ -7,6 +7,7 @@ import protocol.identity.AuthenticationCredentials
 import protocol.identity.CreateSessionRequest
 import protocol.identity.LoginRequest
 import protocol.recipes.{Recipe, RecipeQueryResponse, RecipeQueryRequest}
+import protocol.recipes.{RecipeCheckRequest, RecipeQueryResponse, RecipeQueryRequest}
 import protocol.shoppinglist.{AddToShoppingListRequest, ShoppingListOptionsRequest}
 import scala.Some
 import org.rogach.scallop.exceptions.ScallopException
@@ -39,7 +40,8 @@ object WhiskCli {
     : whisk-cli.jar recipes [--search chocolate] [--site bbc] all
     : whisk-cli.jar addtofavourites full_url
     : whisk-cli.jar shoppinglistoptions [--store store] full_url
-    : whisk-cli.jar addtoshoppinglist [--shoppingListName test] waitrose full_url """)
+    : whisk-cli.jar addtoshoppinglist [--shoppingListName test] waitrose full_url
+    : whisk-cli.jar check recipe_url """)
     }
 
     def process(args: Array[String]) = {
@@ -68,6 +70,10 @@ object WhiskCli {
             val login = new Subcommand("login") {
                 val email = trailArg[String](required = true)
                 val pass = trailArg[String](required = true)
+            }
+
+            val check = new Subcommand("check") {
+                val url  = trailArg[String](required = true)
             }
         }
 
@@ -148,6 +154,13 @@ object WhiskCli {
                 RecipeResponseFormatter.formatItem(out, r.get)
             }
 
+
+            case  Some(Conf.check) => {
+                val  r = new ApiProxy(HttpClient).recipeCheck(RecipeCheckRequest(sessionId, Conf.check.url.get.get, true))
+                out.println("%-20s %-15s %-15s %-30s %-30s".format("Recipe Title","Author", "Site", "Tesco price", "Waitrose price"))
+                out.println("-" * 120)
+                RecipeFormatter.formatItem(out, r.get.recipe.get)
+            }
             case None => {}
         }
     }

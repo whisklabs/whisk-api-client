@@ -39,8 +39,23 @@ import whisk.protocol.common.BasicWhiskResponse
 class ApiProxy(httpHandler: HttpHandler) {
 
 
-
     private implicit val formats = DefaultFormats + new CustomShoppingListStoreItemSerializer
+
+
+    def recipeCheck(r: RecipeCheckRequest) : Option[RecipeResponse] = {
+        val url: String = UrlBuilder.getRecipeCheckUrl(r)
+        val response: String = httpHandler.handleGet(url)
+        parseOpt(response) match {
+            case Some(jv) => {
+                jv.extractOpt[RecipeResponse] match {
+                    case Some(m) => Some(m)
+                    case None => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
+                }
+            }
+            case _ => None
+        }
+    }
+
 
 
     def AddRecipeToShortlistRequestQuery(r: AddRecipeToShortlistRequest) : Option[RecipeResponse] ={
@@ -103,7 +118,7 @@ class ApiProxy(httpHandler: HttpHandler) {
 
         parseOpt(response) match {
             case Some(jv) => {
-                jv.extractOpt[GetShoppingListResponse]
+                Some(jv.extract[GetShoppingListResponse])
             }
             case _ => None
         }
