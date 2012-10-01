@@ -4,20 +4,18 @@ import scala._
 
 import java.util.prefs.Preferences
 
-
-object WhiskPermanentStorage extends  WhiskPermanentStorage
-{
+object WhiskPermanentStorage extends WhiskPermanentStorage {
 
 }
 
-class WhiskPermanentStorage  {
+class WhiskPermanentStorage {
     val preferences: Preferences = Preferences.userNodeForPackage(classOf[WhiskPermanentStorage])
     val key: String = "SessionId"
 
     def loadSessionId(): Option[String] = {
 
         val r = preferences.get(key, null);
-        return  if(r != null)  Some(r) else  None
+        return if (r != null) Some(r) else None
     }
 
     def saveSessionId(sessionID: String) = {
@@ -25,7 +23,7 @@ class WhiskPermanentStorage  {
         preferences.flush();
     }
 
-    def clean(){
+    def clean() {
         preferences.remove(key)
         preferences.flush()
     }
