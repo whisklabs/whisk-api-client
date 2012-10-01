@@ -53,9 +53,8 @@ object RecipeQueryResponseFormatter extends Formatter[Option[RecipeQueryResponse
 
 object RecipeFormatter extends Formatter[Recipe] {
   def formatItem(out: PrintStream, d: Recipe) = {
-    out.printf("%-20s %-10s %-15s %-15s %-30s %-30s\n",
+    out.printf("%-20s %-15s %-15s %-30s %-30s\n",
       d.title.take(20),
-      d.ingredients.length.toString,
       d.author.getOrElse(RecipeAuthor("")).name.take(15),
       d.site.name.take(15),
       d.suggestedPrice.find(isTesco) match {
@@ -70,12 +69,42 @@ object RecipeFormatter extends Formatter[Recipe] {
   }
 
   private def isTesco(p: (String, _)) = p match {
-    case ("tesco", _) => true
+    case ("Tesco", _) => true
     case _ => false;
   }
 
   private def isWaitrose(p: (String, _)) = p match {
-    case ("waitrose", _) => true
+    case ("Waitrose", _) => true
     case _ => false;
   }
+}
+
+
+object RecipeFormatterExt extends Formatter[(Int, Recipe)] {
+    def formatItem(out: PrintStream, d: (Int, Recipe)) = {
+        out.printf("%-5s %-20s %-15s %-15s %-30s %-30s\n",
+            d._1.toString,
+            d._2.title.take(20),
+            d._2.author.getOrElse(RecipeAuthor("")).name.take(15),
+            d._2.site.name.take(15),
+            d._2.suggestedPrice.find(isTesco) match {
+                case Some((_, z)) =>"%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
+                case None => ""
+            },
+
+            d._2.suggestedPrice.find(isWaitrose) match {
+                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
+                case None => ""
+            })
+    }
+
+    private def isTesco(p: (String, _)) = p match {
+        case ("Tesco", _) => true
+        case _ => false;
+    }
+
+    private def isWaitrose(p: (String, _)) = p match {
+        case ("Waitrose", _) => true
+        case _ => false;
+    }
 }
