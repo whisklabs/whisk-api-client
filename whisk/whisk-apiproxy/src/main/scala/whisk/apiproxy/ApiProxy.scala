@@ -54,22 +54,6 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-    def recipeCheck(r: RecipeCheckRequest) : Option[RecipeResponse] = {
-        val url: String = UrlBuilder.getRecipeCheckUrl(r)
-        val response: String = httpHandler.handleGet(url)
-        parseOpt(response) match {
-            case Some(jv) => {
-                jv.extractOpt[RecipeResponse] match {
-                    case Some(m) => Some(m)
-                    case None => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
-                }
-            }
-            case _ => None
-        }
-    }
-
-
-
     def AddRecipeToShortlistRequestQuery(r: AddRecipeToShortlistRequest): Option[RecipeResponse] = {
         val url: String = UrlBuilder.getAddRecipeToShortlistUrl()
         val response: String = httpHandler.handlePost(url, Map(

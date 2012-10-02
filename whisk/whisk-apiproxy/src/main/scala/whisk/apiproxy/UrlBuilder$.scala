@@ -1,6 +1,6 @@
 package whisk.apiproxy
 
-import whisk.protocol.recipes.{RecipeCheckRequest, RecipeQueryRequest}
+import whisk.protocol.recipes.{ RecipeCheckRequest, RecipeQueryRequest }
 import whisk.protocol.recipes.{ RecipeCheckRequest, RecipeQueryRequest }
 import whisk.protocol.shoppinglist.{ GetShoppingListRequest, ShoppingListOptionsRequest }
 import org.apache.http.message.BasicNameValuePair
