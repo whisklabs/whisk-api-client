@@ -12,3 +12,4 @@ bin/
 whisk-adminsite/public/api/
 whisk/.idea/
 whisk/.idea_modules/
+whisk/dist/

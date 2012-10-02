@@ -1,12 +1,11 @@
 import AssemblyKeys._
 import Keys._
-import java.util.jar.Attributes._
-
-scalaVersion := "2.9.2"
 
 libraryDependencies += "org.rogach" %% "scallop" % "0.5.1"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "1.8" % "test"
+
+
 
 
 
