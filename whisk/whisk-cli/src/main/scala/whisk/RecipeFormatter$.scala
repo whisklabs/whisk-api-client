@@ -53,12 +53,12 @@ object RecipeFormatter extends Formatter[Recipe] {
             d.author.getOrElse(RecipeAuthor("")).name.take(15),
             d.site.name.take(15),
             d.suggestedPrice.find(isTesco) match {
-                case Some((_, z)) => String.format("%1$.2f / %2$.2f / %3$.2f", (z.supermarketCost, z.cost, z.costPerServing))
+                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
                 case None         => ""
             },
 
             d.suggestedPrice.find(isWaitrose) match {
-                case Some((_, z)) => String.format("%1$.2f / %2$.2f / %3$.2f", (z.supermarketCost, z.cost, z.costPerServing))
+                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
                 case None         => ""
             })
     }
