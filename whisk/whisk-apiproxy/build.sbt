@@ -4,6 +4,8 @@ libraryDependencies += "org.apache.httpcomponents" % "httpclient" % "4.2.1"
 
 libraryDependencies += "net.liftweb" %% "lift-json" % "2.5-M1"
 
+libraryDependencies += "net.liftweb" %% "lift-json-ext" % "2.5-M1"
+
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "1.8" % "test"
 

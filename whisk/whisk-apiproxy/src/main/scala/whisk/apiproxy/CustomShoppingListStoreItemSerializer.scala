@@ -1,6 +1,6 @@
 package whisk.apiproxy
 
-import net.liftweb.json.{TypeInfo, Formats, Serializer}
+import net.liftweb.json.{ TypeInfo, Formats, Serializer }
 import net.liftweb.json.Extraction.decompose
 import whisk.protocol.shoppinglist.ShoppingListStoreItem
 

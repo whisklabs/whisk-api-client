@@ -1,12 +1,12 @@
 package whisk.apiproxy
 
-import net.liftweb.json.{parseOpt, pretty, render, DefaultFormats}
+import net.liftweb.json.{ parseOpt, pretty, render, DefaultFormats }
 import net.liftweb.json.Extraction._
 import whisk.protocol.recipes._
 import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.client.methods.{HttpPost, HttpGet}
+import org.apache.http.client.methods.{ HttpPost, HttpGet }
 import org.apache.http.util.EntityUtils
-import java.io.{File, IOException}
+import java.io.{ File, IOException }
 import whisk.protocol.shoppinglist._
 import whisk.protocol.recipes.RecipeQueryRequest
 import whisk.protocol.identity.LoginRequest
@@ -18,7 +18,7 @@ import scala.Some
 import whisk.protocol.recipes.RecipeQueryResponse
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.message.BasicNameValuePair
-import org.apache.http.entity.{ContentType, StringEntity}
+import org.apache.http.entity.{ ContentType, StringEntity }
 import scala.collection.JavaConverters._
 import whisk.protocol.recipes.RecipeResponse
 import whisk.protocol.shoppinglist.AddToShoppingListRequest
@@ -34,21 +34,31 @@ import scala.Some
 import whisk.protocol.recipes.RecipeQueryResponse
 import whisk.protocol.shoppinglist.AddToShoppingListResponse
 import whisk.protocol.common.BasicWhiskResponse
-;
+import net.liftweb.json.ext.EnumSerializer;
 
 class ApiProxy(httpHandler: HttpHandler) {
 
+    private implicit val formats = DefaultFormats + new CustomShoppingListStoreItemSerializer + new EnumSerializer(whisk.protocol.shoppinglist.ShoppingListStoreItemDecision)
 
+    def recipeCheck(r: RecipeCheckRequest): Option[RecipeResponse] = {
+        val url: String = UrlBuilder.getRecipeCheckUrl(r)
+        val response: String = httpHandler.handleGet(url)
+        parseOpt(response) match {
+            case Some(jv) => {
+                jv.extractOpt[RecipeResponse] match {
+                    case Some(m) => Some(m)
+                    case None    => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
+                }
+            }
+            case _ => None
+        }
+    }
 
-    private implicit val formats = DefaultFormats + new CustomShoppingListStoreItemSerializer
-
-
-    def AddRecipeToShortlistRequestQuery(r: AddRecipeToShortlistRequest) : Option[RecipeResponse] ={
+    def AddRecipeToShortlistRequestQuery(r: AddRecipeToShortlistRequest): Option[RecipeResponse] = {
         val url: String = UrlBuilder.getAddRecipeToShortlistUrl()
         val response: String = httpHandler.handlePost(url, Map(
             ("recipeUrl", r.recipeUrl),
-            ("sessionId", r.sessionId)
-        ))
+            ("sessionId", r.sessionId)))
         parseOpt(response) match {
             case Some(jv) => {
                 jv.extractOpt[RecipeResponse]
@@ -57,9 +67,7 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-
-
-    def addToShoppingListQuery(r: AddToShoppingListRequest) : Option[AddToShoppingListResponse] ={
+    def addToShoppingListQuery(r: AddToShoppingListRequest): Option[AddToShoppingListResponse] = {
         val url: String = UrlBuilder.getAddToShoppingListUrl()
         val jsonContent = pretty(render(decompose(r)))
         val response: String = httpHandler.handlePost(url, jsonContent)
@@ -71,24 +79,24 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-    def shoppingListOptionsQuery(r: ShoppingListOptionsRequest) : Option [ShoppingListOptionsResponse] ={
+    def shoppingListOptionsQuery(r: ShoppingListOptionsRequest): Option[ShoppingListOptionsResponse] = {
         val url: String = UrlBuilder.getShoppingListOptionsUrl(r)
         val response: String = httpHandler.handleGet(url)
         parseOpt(response) match {
             case Some(jv) => {
                 jv.extractOpt[ShoppingListOptionsResponse] match {
                     case Some(m) => Some(m)
-                    case None => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
+                    case None    => throw new IOException(jv.extractOpt[BasicWhiskResponse].toString)
                 }
             }
             case _ => None
         }
     }
 
-    def shoppingListOptionsPost(r: ShoppingListOptionsRequest) :Option[ShoppingListOptionsResponse] ={
+    def shoppingListOptionsPost(r: ShoppingListOptionsRequest): Option[ShoppingListOptionsResponse] = {
         val url: String = UrlBuilder.getShoppingListOptionsUrl()
         val jsonContent = pretty(render(decompose(r)))
-        val response :String  = httpHandler.handlePost(url, jsonContent)
+        val response: String = httpHandler.handlePost(url, jsonContent)
         parseOpt(response) match {
             case Some(jv) => {
                 jv.extractOpt[ShoppingListOptionsResponse]
@@ -97,18 +105,17 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-    def shoppingListQuery(r: GetShoppingListRequest) : Option[GetShoppingListResponse] ={
+    def shoppingListQuery(r: GetShoppingListRequest): Option[GetShoppingListResponse] = {
         val url: String = UrlBuilder.getShoppingListRequestUrl(r)
         val response: String = httpHandler.handleGet(url)
 
         parseOpt(response) match {
             case Some(jv) => {
-                jv.extractOpt[GetShoppingListResponse]
+                Some(jv.extract[GetShoppingListResponse])
             }
             case _ => None
         }
     }
-
 
     def recipesQuery(r: RecipeQueryRequest): Option[RecipeQueryResponse] = {
         val url: String = UrlBuilder.getRecipesQueryUrl(r)
@@ -121,11 +128,10 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-
-    def createSession(r: CreateSessionRequest) :Option[CreateSessionResponse] ={
+    def createSession(r: CreateSessionRequest): Option[CreateSessionResponse] = {
         val url: String = UrlBuilder.getCreateSessionUrl()
         val jsonContent = pretty(render(decompose(r)))
-        val response :String  = httpHandler.handlePost(url, jsonContent)
+        val response: String = httpHandler.handlePost(url, jsonContent)
         parseOpt(response) match {
             case Some(jv) => {
                 jv.extractOpt[CreateSessionResponse]
@@ -134,10 +140,10 @@ class ApiProxy(httpHandler: HttpHandler) {
         }
     }
 
-    def loginQuery(r: LoginRequest) : Option[LoginResponse] ={
+    def loginQuery(r: LoginRequest): Option[LoginResponse] = {
         val url: String = UrlBuilder.getLoginUrl()
         val jsonContent = pretty(render(decompose(r)))
-        val response :String  = httpHandler.handlePost(url, jsonContent)
+        val response: String = httpHandler.handlePost(url, jsonContent)
         parseOpt(response) match {
             case Some(jv) => {
                 jv.extractOpt[LoginResponse]
@@ -147,20 +153,17 @@ class ApiProxy(httpHandler: HttpHandler) {
     }
 }
 
-
-trait HttpHandler
-{
-    def handleGet(url:String) : String
-    def handlePost(url:String,  params:Map[String,String]) :String
-    def handlePost(url:String,  jsonContent:String) :String
+trait HttpHandler {
+    def handleGet(url: String): String
+    def handlePost(url: String, params: Map[String, String]): String
+    def handlePost(url: String, jsonContent: String): String
 }
 
-object HttpClient extends HttpHandler
-{
-    var logger = ( x:String ) => {  }
+object HttpClient extends HttpHandler {
+    var logger = (x: String) => {}
     //var logger = ( x:String ) => {  println(x) }
 
-    def handleGet(url :String): String = {
+    def handleGet(url: String): String = {
         val httpClient = new DefaultHttpClient()
         try {
             logger(url)
@@ -172,17 +175,18 @@ object HttpClient extends HttpHandler
                 return new String(result)
             }
             throw new IOException(response.toString)
-        } finally {
+        }
+        finally {
             httpClient.getConnectionManager().shutdown()
         }
     }
 
-    def handlePost(url: String, params:Map[String,String]):String ={
+    def handlePost(url: String, params: Map[String, String]): String = {
         val httpClient = new DefaultHttpClient()
         try {
             logger(url)
             val request = new HttpPost(url)
-            val postParams =  params.map(p => new BasicNameValuePair(p._1, p._2))
+            val postParams = params.map(p => new BasicNameValuePair(p._1, p._2))
             request.setEntity(new UrlEncodedFormEntity(postParams.asJava))
             postParams.foreach(x => logger(x.toString))
             val response = httpClient.execute(request)
@@ -192,12 +196,13 @@ object HttpClient extends HttpHandler
                 return new String(result)
             }
             throw new IOException(response.toString)
-        } finally {
+        }
+        finally {
             httpClient.getConnectionManager().shutdown()
         }
     }
 
-    def handlePost(url: String, jsonContent:String):String ={
+    def handlePost(url: String, jsonContent: String): String = {
         val httpClient = new DefaultHttpClient()
         try {
             logger(url)
@@ -211,7 +216,8 @@ object HttpClient extends HttpHandler
                 return new String(result)
             }
             throw new IOException(response.toString)
-        } finally {
+        }
+        finally {
             httpClient.getConnectionManager().shutdown()
         }
     }
