@@ -11,6 +11,7 @@ import protocol.identity.CreateSessionRequest
 import protocol.identity.CredentialSource
 import protocol.identity.LoginRequest
 import protocol.identity.LoginRequest
+import protocol.recipes.{ RecipeCheckRequest, RecipeQueryResponse, RecipeQueryRequest }
 import protocol.recipes._
 import protocol.recipes.Recipe
 import protocol.recipes.RecipeQueryRequest
@@ -164,6 +165,8 @@ object WhiskCli {
 
             case Some(Conf.check) => {
                 val r = new ApiProxy(HttpClient).recipeCheck(RecipeCheckRequest(sessionId, Conf.check.url.get.get, true))
+                out.println("%-20s %-15s %-15s %-30s %-30s".format("Recipe Title", "Author", "Site", "Tesco price", "Waitrose price"))
+                out.println("-" * 120)
                 RecipeFormatter.formatItem(out, r.get.recipe.get)
             }
             case None => {}
