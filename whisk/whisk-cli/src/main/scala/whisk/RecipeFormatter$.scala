@@ -58,8 +58,8 @@ object RecipeQueryResponseFormatter extends Formatter[Option[RecipeQueryResponse
 
 object RecipeFormatter extends Formatter[Recipe] {
     def formatItem(out: PrintStream, d: Recipe) = {
-        out.printf("%-20s %-15s %-15s %-30s %-30s\n",
-            d.title.take(20),
+        out.printf("%-40s %-15s %-15s %-30s %-30s\n",
+            d.title.take(40),
             d.author.getOrElse(RecipeAuthor("")).name.take(15),
             d.site.name.take(15),
             d.suggestedPrice.find(p => p.store == "Tesco") match {
@@ -77,9 +77,9 @@ object RecipeFormatter extends Formatter[Recipe] {
 
 object RecipeFormatterExt extends Formatter[(Int, Recipe)] {
     def formatItem(out: PrintStream, d: (Int, Recipe)) = {
-        out.printf("%-5s %-20s %-15s %-15s %-30s %-30s\n",
+        out.printf("%-5s %-40s %-15s %-15s %-45s %-45s\n",
             d._1.toString,
-            d._2.title.take(20),
+            d._2.title.take(40),
             d._2.author.getOrElse(RecipeAuthor("")).name.take(15),
             d._2.site.name.take(15),
             d._2.suggestedPrice.find(p => p.store == "Tesco") match {

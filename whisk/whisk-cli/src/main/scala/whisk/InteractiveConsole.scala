@@ -66,6 +66,7 @@ object InteractiveConsole {
 
     private def print10[T](coll: Seq[Seq[(Int, T)]], frame: Int, f: (PrintStream, Int, T) => Unit, printHeader: (PrintStream) => Unit) = {
         if (coll.size > frame && frame >= 0) {
+            out.println("Part %s  of %s \n".format(frame + 1, coll.size))
             printHeader(out)
             coll(frame).foreach(m => f(out, m._1, m._2))
         }

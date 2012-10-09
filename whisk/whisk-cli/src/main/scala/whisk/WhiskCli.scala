@@ -112,17 +112,17 @@ object WhiskCli {
                 }
 
                 val header = (out: PrintStream) => {
-                    out.println("-" * 120)
+                    out.println("-" * 180)
                     out.println(
                         if (!isTopRecipes)
-                            "  A selection of recipes from Whisk"
+                            "A selection of recipes from Whisk"
                         else
-                            "  Whisks top recipes")
-                    out.println("-" * 120)
+                            "Whisks top recipes")
+                    out.println("-" * 180)
                 }
                 val columnHeaderPrinter = (out: PrintStream) => {
-                    out.println("%-5s %-20s %-15s %-15s %-30s %-30s".format("ID", "Recipe Title", "Author", "Site", "Tesco price", "Waitrose price"))
-                    out.println("-" * 120)
+                    out.println("%-5s %-40s %-15s %-15s %-45s %-45s".format("ID", "Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person) ", "Waitrose price (supermarket/total/pre person)"))
+                    out.println("-" * 180)
                 }
                 InteractiveConsole.process(prod, header, (out: PrintStream, id: Int, r: Recipe) => RecipeFormatterExt.formatItem(out, (id, r)), columnHeaderPrinter)
             }
@@ -162,8 +162,8 @@ object WhiskCli {
 
             case Some(Conf.check) => {
                 val r = new ApiProxy(client).recipeCheck(RecipeCheckRequest(Some(sessionId), Conf.check.url.get.get, true))
-                out.println("%-20s %-15s %-15s %-30s %-30s".format("Recipe Title", "Author", "Site", "Tesco price", "Waitrose price"))
-                out.println("-" * 120)
+                out.println("%-40s %-15s %-15s %-45s %-45s".format("Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person)", "Waitrose price (supermarket/total/pre person)"))
+                out.println("-" * 200)
                 RecipeFormatter.formatItem(out, r.get.recipe.get)
             }
             case None => {}
