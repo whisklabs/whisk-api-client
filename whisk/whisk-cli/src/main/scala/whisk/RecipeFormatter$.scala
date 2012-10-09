@@ -1,10 +1,20 @@
 package whisk
 
 import protocol.identity.LoginResponse
+import protocol.identity.LoginResponse
+import protocol.recipes.Recipe
+import protocol.recipes.RecipeAuthor
+import protocol.recipes.RecipeQueryResponse
+import protocol.recipes.RecipeResponse
+import protocol.shoppinglist.AddToShoppingListResponse
+import protocol.shoppinglist.ShoppingList
+import protocol.shoppinglist.ShoppingListOptionsResponse
+import protocol.shoppinglist.ShoppingListTitle
 import protocol.shoppinglist.{ ShoppingListTitle, ShoppingList, AddToShoppingListResponse, ShoppingListOptionsResponse }
-import protocol.recipes.{ RecipeQueryResponse, RecipeResponse, RecipeAuthor, Recipe }
+import protocol.recipes._
 import scala.Some
 import java.io.PrintStream
+import scala.Some
 
 object LoginFormatter extends Formatter[LoginResponse] {
     def formatItem(out: PrintStream, data: LoginResponse) = {
@@ -52,26 +62,17 @@ object RecipeFormatter extends Formatter[Recipe] {
             d.title.take(20),
             d.author.getOrElse(RecipeAuthor("")).name.take(15),
             d.site.name.take(15),
-            d.suggestedPrice.find(isTesco) match {
-                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
-                case None         => ""
+            d.suggestedPrice.find(p => p.store == "Tesco") match {
+                case Some(p) => "%1$.2f / %2$.2f / %3$.2f".format(p.priceSet.supermarketCost, p.priceSet.cost, p.priceSet.costPerServing)
+                case None    => ""
             },
 
-            d.suggestedPrice.find(isWaitrose) match {
-                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
-                case None         => ""
+            d.suggestedPrice.find(p => p.store == "Waitrose") match {
+                case Some(p) => "%1$.2f / %2$.2f / %3$.2f".format(p.priceSet.supermarketCost, p.priceSet.cost, p.priceSet.costPerServing)
+                case None    => ""
             })
     }
 
-    private def isTesco(p: (String, _)) = p match {
-        case ("Tesco", _) => true
-        case _            => false;
-    }
-
-    private def isWaitrose(p: (String, _)) = p match {
-        case ("Waitrose", _) => true
-        case _               => false;
-    }
 }
 
 object RecipeFormatterExt extends Formatter[(Int, Recipe)] {
@@ -81,24 +82,14 @@ object RecipeFormatterExt extends Formatter[(Int, Recipe)] {
             d._2.title.take(20),
             d._2.author.getOrElse(RecipeAuthor("")).name.take(15),
             d._2.site.name.take(15),
-            d._2.suggestedPrice.find(isTesco) match {
-                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
-                case None         => ""
+            d._2.suggestedPrice.find(p => p.store == "Tesco") match {
+                case Some(p) => "%1$.2f / %2$.2f / %3$.2f".format(p.priceSet.supermarketCost, p.priceSet.cost, p.priceSet.costPerServing)
+                case None    => ""
             },
 
-            d._2.suggestedPrice.find(isWaitrose) match {
-                case Some((_, z)) => "%1$.2f / %2$.2f / %3$.2f".format(z.supermarketCost, z.cost, z.costPerServing)
-                case None         => ""
+            d._2.suggestedPrice.find(p => p.store == "Waitrose") match {
+                case Some(p) => "%1$.2f / %2$.2f / %3$.2f".format(p.priceSet.supermarketCost, p.priceSet.cost, p.priceSet.costPerServing)
+                case None    => ""
             })
-    }
-
-    private def isTesco(p: (String, _)) = p match {
-        case ("Tesco", _) => true
-        case _            => false;
-    }
-
-    private def isWaitrose(p: (String, _)) = p match {
-        case ("Waitrose", _) => true
-        case _               => false;
     }
 }

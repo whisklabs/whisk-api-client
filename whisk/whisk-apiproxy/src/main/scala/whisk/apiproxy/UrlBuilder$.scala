@@ -10,7 +10,7 @@ import scala.collection.JavaConverters._;
 object UrlBuilder {
 
     def getRecipeCheckUrl(r: RecipeCheckRequest): String = {
-        val m = Map(("sessionId", r.sessionId), ("recipeUrl", r.recipeUrl))
+        val m = Map(("sessionId", r.sessionId.getOrElse("")), ("recipeUrl", r.recipeUrl))
         val parameters = m.map({ case (k, v) => new BasicNameValuePair(k, v) }).toSeq
         return buildGetUrl("recipes/check", URLEncodedUtils.format(parameters.asJava, "utf-8"))
     }

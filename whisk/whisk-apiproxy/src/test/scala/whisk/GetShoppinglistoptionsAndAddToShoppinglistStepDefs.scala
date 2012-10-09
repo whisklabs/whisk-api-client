@@ -27,7 +27,7 @@ class GetShoppinglistoptionsAndAddToShoppinglistStepDefs extends ScalaDsl with E
     And("""^I ask it to get the shopping list options for "([^"]*)"$""") {
         (url: String) =>
             recipeUrl = Some(url)
-            res = proxy.shoppingListOptionsQuery(ShoppingListOptionsRequest(sessionId.get, url, None, None))
+            res = proxy.shoppingListOptionsQuery(ShoppingListOptionsRequest(sessionId.get, url, None, None, None))
     }
 
     And("""^I change the option for "([^"]*)" to "([^"]*)"$""") {
@@ -35,7 +35,7 @@ class GetShoppinglistoptionsAndAddToShoppinglistStepDefs extends ScalaDsl with E
             val entry = res.get.entries.find(e => e.recipeIngredient.equalsIgnoreCase(ingredient))
             val storeItemId = entry.get.entryOptions.flatMap(v => v.storeItems).find(x => x.name.equalsIgnoreCase(optionNew))
             toChange = Seq(ShoppingListEntryOptionMutation(entry.get.entryOptions.head.id, Some(storeItemId.get.storeItemId), Some(ShoppingListStoreItemDecision.Add)))
-            proxy.shoppingListOptionsPost(ShoppingListOptionsRequest(sessionId.get, recipeUrl.get, None, None, toChange))
+            proxy.shoppingListOptionsPost(ShoppingListOptionsRequest(sessionId.get, recipeUrl.get, None, None, None, toChange))
     }
 
     And("""^I add the recipe to a shopping list at "([^"]*)"$""") {
@@ -67,12 +67,11 @@ class GetShoppinglistoptionsWaitroseAndTescoStepDefs extends ScalaDsl with EN {
 
     When("""^I ask it to get the shopping list options for   "([^"]*)"$""") { (url: String) =>
         recipeUrl = Some(url)
-        res = proxy.shoppingListOptionsQuery(ShoppingListOptionsRequest(sessionId.get, url, None, None))
+        res = proxy.shoppingListOptionsQuery(ShoppingListOptionsRequest(sessionId.get, url, None, None, None))
     }
 
     Then("""^the supermarkets "([^"]*)" and "([^"]*)" should be returned$""") {
         (market1: String, market2: String) =>
-
             val expected = Seq(market1, market2)
             val resultStores: Seq[String] = res.get.availableStores.map(x => x.name)
             assertTrue("expected %s  given %s".format(expected, resultStores), !expected.intersect(resultStores).isEmpty)
