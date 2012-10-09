@@ -106,7 +106,7 @@ object WhiskCli {
 
                 val prod = () => {
                     new ApiProxy(client).recipesQuery(RecipeQueryRequest(sessionId = sessionId, params = map)) match {
-                        case Some(r) => r.data.get.recipes
+                        case Some(r) => if (r.data.isDefined) r.data.get.recipes else Seq.empty
                         case None    => Seq.empty
                     }
                 }
