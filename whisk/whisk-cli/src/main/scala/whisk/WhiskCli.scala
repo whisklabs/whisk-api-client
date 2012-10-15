@@ -40,9 +40,9 @@ object WhiskCli {
         println(
             """usages
     : whisk-cli.jar [--v] recipes [--search chocolate] [--site bbc] all
-    : whisk-cli.jar [--v] addtofavourites full_url
-    : whisk-cli.jar [--v] shoppinglistoptions [--store store] full_url
-    : whisk-cli.jar [--v] addtoshoppinglist [--shoppingListName test] waitrose full_url
+    : whisk-cli.jar [--v] addtofavourites urlID
+    : whisk-cli.jar [--v] shoppinglistoptions [--store store] urlID
+    : whisk-cli.jar [--v] addtoshoppinglist [--shoppingListName test] waitrose urlID
     : whisk-cli.jar [--v] check recipe_url """)
     }
 
@@ -58,18 +58,18 @@ object WhiskCli {
             }
 
             val addtofavourites = new Subcommand("addtofavourites") {
-                val url = trailArg[String](required = true)
+                val urlId = trailArg[String](required = true)
             }
 
             val shoppinglistoptions = new Subcommand("shoppinglistoptions") {
                 val store = opt[String]("store")
-                val url = trailArg[String](required = true)
+                val urlId = trailArg[String](required = true)
             }
 
             val addtoshoppinglist = new Subcommand("addtoshoppinglist") {
                 val shoppingListName = opt[String]("shoppingListName")
                 val store = trailArg[String](required = true)
-                val url = trailArg[String](required = true)
+                val urlId = trailArg[String](required = true)
             }
 
             val login = new Subcommand("login") {
@@ -121,10 +121,14 @@ object WhiskCli {
                     out.println("-" * 180)
                 }
                 val columnHeaderPrinter = (out: PrintStream) => {
-                    out.println("%-5s %-40s %-15s %-15s %-45s %-45s".format("ID", "Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person) ", "Waitrose price (supermarket/total/pre person)"))
+                    out.println("%-5s %-10s %-40s %-15s %-15s %-45s %-45s".format("ID", "UrlId", "Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person) ", "Waitrose price (supermarket/total/pre person)"))
                     out.println("-" * 180)
                 }
-                InteractiveConsole.process(prod, header, (out: PrintStream, id: Int, r: Recipe) => RecipeFormatterExt.formatItem(out, (id, r)), columnHeaderPrinter)
+                val itemPrinter: (PrintStream, Int, Recipe) => Unit =
+                    (out: PrintStream, id: Int, r: Recipe) => RecipeFormatterExt.formatItem(out, (id, r, UrlToKeyCache.getAndSetKeyByUrl(r.url)))
+
+                InteractiveConsole.process(prod, header, itemPrinter, columnHeaderPrinter)
+                UrlToKeyCache.flush()
             }
 
             case Some(Conf.login) => {
@@ -142,13 +146,14 @@ object WhiskCli {
             case Some(Conf.shoppinglistoptions) => {
                 val r = new ApiProxy(client)
                     .shoppingListOptionsQuery(
-                        ShoppingListOptionsRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), shoppingListName = None, store = Conf.shoppinglistoptions.store.get))
+                        ShoppingListOptionsRequest(sessionId, UrlToKeyCache.getUrlByKey(Conf.shoppinglistoptions.urlId.get.get).getOrElse(""), Some(1), shoppingListName = None, store = Conf.shoppinglistoptions.store.get))
                 ShoppingListOptions.formatItem(out, r.get)
             }
 
             case Some(Conf.addtoshoppinglist) => {
                 val store: Option[String] = Conf.addtoshoppinglist.store.get
-                val url: String = Conf.addtoshoppinglist.url.get.get
+                val url: String = UrlToKeyCache.getUrlByKey(Conf.addtoshoppinglist.urlId.get.get).getOrElse("")
+
                 val r = new ApiProxy(client)
                     .addToShoppingListQuery(AddToShoppingListRequest(sessionId, url, Some(1), store, shoppingListName = Conf.addtoshoppinglist.shoppingListName.get))
                 AddToShoppingListFormatter.formatItem(out, r.get)
@@ -156,7 +161,9 @@ object WhiskCli {
 
             case Some(Conf.addtofavourites) => {
                 val r = new ApiProxy(client)
-                    .AddRecipeToShortlistRequestQuery(AddRecipeToShortlistRequest(sessionId, Conf.addtofavourites.url.get.get))
+                    .AddRecipeToShortlistRequestQuery(AddRecipeToShortlistRequest(sessionId, UrlToKeyCache.getUrlByKey(Conf.addtofavourites.urlId.get.get).getOrElse("")))
+                out.println("%-40s %-15s %-15s %-45s %-45s".format("Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person)", "Waitrose price (supermarket/total/pre person)"))
+                out.println("-" * 180)
                 RecipeResponseFormatter.formatItem(out, r.get)
             }
 

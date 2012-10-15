@@ -2,11 +2,6 @@ package whisk
 
 import java.io.PrintStream
 
-/** Created by IntelliJ IDEA.
- *  User: vlmiroshnikov
- *  Date: 28.09.12 1:16
- *  To change this template use File | Settings | File Templates.
- */
 object InteractiveConsole {
     val out = Console.out
 

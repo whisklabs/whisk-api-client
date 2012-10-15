@@ -15,6 +15,8 @@ import protocol.recipes._
 import scala.Some
 import java.io.PrintStream
 import scala.Some
+import java.security.MessageDigest
+import org.apache.commons.codec.binary.Base64
 
 object LoginFormatter extends Formatter[LoginResponse] {
     def formatItem(out: PrintStream, data: LoginResponse) = {
@@ -58,7 +60,7 @@ object RecipeQueryResponseFormatter extends Formatter[Option[RecipeQueryResponse
 
 object RecipeFormatter extends Formatter[Recipe] {
     def formatItem(out: PrintStream, d: Recipe) = {
-        out.printf("%-40s %-15s %-15s %-30s %-30s\n",
+        out.printf("%-40s %-15s %-15s %-45s %-45s\n",
             d.title.take(40),
             d.author.getOrElse(RecipeAuthor("")).name.take(15),
             d.site.name.take(15),
@@ -75,10 +77,12 @@ object RecipeFormatter extends Formatter[Recipe] {
 
 }
 
-object RecipeFormatterExt extends Formatter[(Int, Recipe)] {
-    def formatItem(out: PrintStream, d: (Int, Recipe)) = {
-        out.printf("%-5s %-40s %-15s %-15s %-45s %-45s\n",
+object RecipeFormatterExt extends Formatter[(Int, Recipe, String)] {
+
+    def formatItem(out: PrintStream, d: (Int, Recipe, String)) = {
+        out.printf("%-5s %-10s %-40s %-15s %-15s %-45s %-45s\n",
             d._1.toString,
+            d._3,
             d._2.title.take(40),
             d._2.author.getOrElse(RecipeAuthor("")).name.take(15),
             d._2.site.name.take(15),
