@@ -39,7 +39,8 @@ object WhiskCli {
     def showHelp {
         println(
             """usages
-    : whisk-cli.jar [--v] recipes [--search chocolate] [--site bbc] all
+    : whisk-cli.jar [--v] recipes [--search chocolate] [--site bbc] all|top
+    : whisk-cli.jar [--v] recipes favourites
     : whisk-cli.jar [--v] addtofavourites urlID
     : whisk-cli.jar [--v] shoppinglistoptions [--store store] urlID
     : whisk-cli.jar [--v] addtoshoppinglist [--shoppingListName test] waitrose urlID
@@ -89,13 +90,22 @@ object WhiskCli {
         Conf.subcommand match {
             case Some(Conf.recipes) => {
 
-                var map: Map[String, Seq[String]] = Map(
-                    ("list", Seq(Conf.recipes.list())))
+                val list = Conf.recipes.list()
 
-                val isTopRecipes: Boolean = Conf.recipes.list().contains("top")
-                if (isTopRecipes) {
-                    map ++ Map(("start", Seq("0")),
-                        ("count", Seq("10")))
+                var map = list match {
+                    case x if x.contains("top") => {
+                        Map(
+                            ("list", Seq(list)),
+                            ("start", Seq("0")),
+                            ("count", Seq("10")))
+                    }
+                    case "favourites" => {
+                        Map(("list", Seq("shortlist")))
+                    }
+
+                    case other => {
+                        Map(("list", Seq(other)))
+                    }
                 }
 
                 if (Conf.recipes.site.isSupplied)
@@ -114,7 +124,7 @@ object WhiskCli {
                 val header = (out: PrintStream) => {
                     out.println("-" * 180)
                     out.println(
-                        if (!isTopRecipes)
+                        if (!Conf.recipes.list().contains("top"))
                             "A selection of recipes from Whisk"
                         else
                             "Whisks top recipes")
