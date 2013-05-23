@@ -69,10 +69,10 @@ object UrlBuilder {
     }
 
     private def buildGetUrl(queryType: String, params: String) = {
-        "http://test-apiadmin.whisk.co.uk/api/"+queryType+"?"+params;
+        "http://www.whisk.co.uk/api/"+queryType+"?"+params;
     }
 
     private def buildUrl(queryType: String) = {
-        "http://test-apiadmin.whisk.co.uk/api/"+queryType
+        "http://www.whisk.co.uk/api/"+queryType
     }
 }
