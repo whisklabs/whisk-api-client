@@ -2,11 +2,6 @@ package whisk
 
 import java.io.PrintStream
 
-/** Created by IntelliJ IDEA.
- *  User: vlmiroshnikov
- *  Date: 28.09.12 1:16
- *  To change this template use File | Settings | File Templates.
- */
 object InteractiveConsole {
     val out = Console.out
 
@@ -66,6 +61,7 @@ object InteractiveConsole {
 
     private def print10[T](coll: Seq[Seq[(Int, T)]], frame: Int, f: (PrintStream, Int, T) => Unit, printHeader: (PrintStream) => Unit) = {
         if (coll.size > frame && frame >= 0) {
+            out.println("Part %s  of %s \n".format(frame + 1, coll.size))
             printHeader(out)
             coll(frame).foreach(m => f(out, m._1, m._2))
         }
