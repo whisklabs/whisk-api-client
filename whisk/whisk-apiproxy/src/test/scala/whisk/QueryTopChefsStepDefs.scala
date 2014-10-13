@@ -1,6 +1,6 @@
 package whisk
 
-import apiproxy.{ HttpClient, ApiProxy }
+import apiproxy.{ NullLogger, HttpClient, ApiProxy }
 import cucumber.runtime.{ ScalaDsl, EN }
 import protocol.identity.CreateSessionRequest
 import protocol.recipes.{ Recipe, RecipeQueryRequest }
@@ -9,7 +9,7 @@ import org.junit.Assert._
 
 class QueryTopChefsStepDefs extends ScalaDsl with EN {
 
-    val proxy = new ApiProxy(HttpClient)
+    val proxy = new ApiProxy(new HttpClient)
 
     var sessionId: Option[String] = None
 
@@ -35,7 +35,7 @@ class QueryTopChefsStepDefs extends ScalaDsl with EN {
 
 class QuerySearchForRecipeStepDefs extends ScalaDsl with EN {
 
-    val proxy = new ApiProxy(HttpClient)
+    val proxy = new ApiProxy(new HttpClient)
 
     var sessionId: Option[String] = None
 
