@@ -21,7 +21,7 @@ class CheckRecipeStepDefs extends ScalaDsl with EN {
     }
 
     And("""^I  ask it to check for  recipe url recipe "([^"]*)"$""") { (url: String) =>
-        res = proxy.recipeCheck(RecipeCheckRequest(sessionId.get, url, true))
+        res = proxy.recipeCheck(RecipeCheckRequest(sessionId, url, true))
     }
     Then("""^it  should return the recipe with Url "([^"]*)"$""") { (url: String) =>
         assertTrue("check failed", res.get.recipe.isDefined)

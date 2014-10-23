@@ -1,24 +1,16 @@
 package whisk
 
-import apiproxy.{ HttpClient, ApiProxy }
+import apiproxy.{ NullLogger, HttpClient, ApiProxy }
 import org.rogach.scallop.{ Subcommand, ScallopConf }
-import protocol.identity._
 import protocol.identity.AddRecipeToShortlistRequest
 import protocol.identity.AuthenticationCredentials
-import protocol.identity.AuthenticationCredentials
-import protocol.identity.CreateSessionRequest
 import protocol.identity.CreateSessionRequest
 import protocol.identity.CredentialSource
 import protocol.identity.LoginRequest
-import protocol.identity.LoginRequest
-import protocol.recipes.{ RecipeCheckRequest, RecipeQueryResponse, RecipeQueryRequest }
 import protocol.recipes._
 import protocol.recipes.Recipe
 import protocol.recipes.RecipeQueryRequest
-import protocol.shoppinglist.AddToShoppingListRequest
-import protocol.shoppinglist.ShoppingListOptionsRequest
 import protocol.shoppinglist.{ AddToShoppingListRequest, ShoppingListOptionsRequest }
-import scala.Some
 import org.rogach.scallop.exceptions.ScallopException
 import java.io.PrintStream
 import scala.Some
@@ -47,15 +39,18 @@ object WhiskCli {
     def showHelp {
         println(
             """usages
-    : whisk-cli.jar recipes [--search chocolate] [--site bbc] all
-    : whisk-cli.jar addtofavourites full_url
-    : whisk-cli.jar shoppinglistoptions [--store store] full_url
-    : whisk-cli.jar addtoshoppinglist [--shoppingListName test] waitrose full_url
-    : whisk-cli.jar check recipe_url """)
+    : whisk-cli.jar [--v] recipes [--search chocolate] [--site bbc] all
+    : whisk-cli.jar [--v] addtofavourites full_url
+    : whisk-cli.jar [--v] shoppinglistoptions [--store store] full_url
+    : whisk-cli.jar [--v] addtoshoppinglist [--shoppingListName test] waitrose full_url
+    : whisk-cli.jar [--v] check recipe_url """)
     }
 
     def process(args: Array[String]) = {
         object Conf extends ScallopConf(args) {
+
+            val verbose = opt[Boolean]("v")
+
             val recipes = new Subcommand("recipes") {
                 val searchText = opt[String]("search")
                 val site = opt[String]("site")
@@ -89,6 +84,8 @@ object WhiskCli {
 
         val sessionId = obtainSessionId()
 
+        val client = new HttpClient(if (Conf.verbose.get.getOrElse(false)) ConsoleLogger else NullLogger)
+
         Conf.subcommand match {
             case Some(Conf.recipes) => {
 
@@ -108,65 +105,65 @@ object WhiskCli {
                     map += (("searchText", Seq(Conf.recipes.searchText())))
 
                 val prod = () => {
-                    new ApiProxy(HttpClient).recipesQuery(RecipeQueryRequest(sessionId = sessionId, params = map)) match {
-                        case Some(r) => r.data.get.recipes
+                    new ApiProxy(client).recipesQuery(RecipeQueryRequest(sessionId = sessionId, params = map)) match {
+                        case Some(r) => if (r.data.isDefined) r.data.get.recipes else Seq.empty
                         case None    => Seq.empty
                     }
                 }
 
                 val header = (out: PrintStream) => {
-                    out.println("-" * 120)
+                    out.println("-" * 180)
                     out.println(
                         if (!isTopRecipes)
-                            "  A selection of recipes from Whisk"
+                            "A selection of recipes from Whisk"
                         else
-                            "  Whisks top recipes")
-                    out.println("-" * 120)
+                            "Whisks top recipes")
+                    out.println("-" * 180)
                 }
                 val columnHeaderPrinter = (out: PrintStream) => {
-                    out.println("%-5s %-20s %-15s %-15s %-30s %-30s".format("ID", "Recipe Title", "Author", "Site", "Tesco price", "Waitrose price"))
-                    out.println("-" * 120)
+                    out.println("%-5s %-40s %-15s %-15s %-45s %-45s".format("ID", "Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person) ", "Waitrose price (supermarket/total/pre person)"))
+                    out.println("-" * 180)
                 }
                 InteractiveConsole.process(prod, header, (out: PrintStream, id: Int, r: Recipe) => RecipeFormatterExt.formatItem(out, (id, r)), columnHeaderPrinter)
             }
 
             case Some(Conf.login) => {
-                val response = new ApiProxy(HttpClient).createSession(CreateSessionRequest())
+                val response = new ApiProxy(client).createSession(CreateSessionRequest())
                 val newSessionId = response.map(r => r.header.sessionId) match {
                     case Some(x) => WhiskPermanentStorage.saveSessionId(x); x
                     case None    => ""
                 }
 
-                val r = new ApiProxy(HttpClient)
+                val r = new ApiProxy(client)
                     .loginQuery(LoginRequest(newSessionId, AuthenticationCredentials(username = Conf.login.email.get.get, source = CredentialSource("BasicAuth"), token = "")))
                 LoginFormatter.formatItem(out, r.get)
             }
 
             case Some(Conf.shoppinglistoptions) => {
-                val r = new ApiProxy(HttpClient)
+                val r = new ApiProxy(client)
                     .shoppingListOptionsQuery(
-                        ShoppingListOptionsRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), store = Conf.shoppinglistoptions.store.get))
+                        ShoppingListOptionsRequest(sessionId, Conf.shoppinglistoptions.url.get.get, Some(1), shoppingListName = None, store = Conf.shoppinglistoptions.store.get))
                 ShoppingListOptions.formatItem(out, r.get)
             }
 
             case Some(Conf.addtoshoppinglist) => {
                 val store: Option[String] = Conf.addtoshoppinglist.store.get
                 val url: String = Conf.addtoshoppinglist.url.get.get
-                val r = new ApiProxy(HttpClient)
+                val r = new ApiProxy(client)
                     .addToShoppingListQuery(AddToShoppingListRequest(sessionId, url, Some(1), store, shoppingListName = Conf.addtoshoppinglist.shoppingListName.get))
                 AddToShoppingListFormatter.formatItem(out, r.get)
             }
 
             case Some(Conf.addtofavourites) => {
-                val r = new ApiProxy(HttpClient)
+                val r = new ApiProxy(client)
                     .AddRecipeToShortlistRequestQuery(AddRecipeToShortlistRequest(sessionId, Conf.addtofavourites.url.get.get))
                 RecipeResponseFormatter.formatItem(out, r.get)
             }
 
             case Some(Conf.check) => {
-                val r = new ApiProxy(HttpClient).recipeCheck(RecipeCheckRequest(sessionId, Conf.check.url.get.get, true))
-                out.println("%-20s %-15s %-15s %-30s %-30s".format("Recipe Title", "Author", "Site", "Tesco price", "Waitrose price"))
-                out.println("-" * 120)
+                val r = new ApiProxy(client).recipeCheck(RecipeCheckRequest(Some(sessionId), Conf.check.url.get.get, true))
+                out.println("%-40s %-15s %-15s %-45s %-45s".format("Recipe Title", "Author", "Site", "Tesco price (supermarket/total/pre person)", "Waitrose price (supermarket/total/pre person)"))
+                out.println("-" * 200)
                 RecipeFormatter.formatItem(out, r.get.recipe.get)
             }
             case None => {}
@@ -177,7 +174,7 @@ object WhiskCli {
         WhiskPermanentStorage.loadSessionId() match {
             case Some(s) => s
             case None => {
-                val response = new ApiProxy(HttpClient).createSession(CreateSessionRequest())
+                val response = new ApiProxy(new HttpClient(NullLogger)).createSession(CreateSessionRequest())
                 response.map(r => r.header.sessionId) match {
                     case Some(x) => WhiskPermanentStorage.saveSessionId(x); x
                     case None    => ""
